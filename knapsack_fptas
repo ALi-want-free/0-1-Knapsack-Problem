@@ -1,0 +1,43 @@
+import math
+
+def knapsack_fptas(weights, values, capacity, epsilon):
+    """
+    解决 0/1 背包问题的 FPTAS (Kellerer 和 Pferschy 方法)
+    
+    :param weights: 物品的重量列表
+    :param values: 物品的价值列表
+    :param capacity: 背包的最大容量
+    :param epsilon: 精度参数 (0 < epsilon < 1)
+    :return: 背包能装入物品的近似最大价值
+    """
+    n = len(weights)
+    max_value = max(values)  # 物品中的最大价值
+
+    # 1. 缩放价值值以降低精度
+    scale = (epsilon * max_value) / n
+    scaled_values = [math.floor(v / scale) for v in values]
+    
+    # 2. 初始化 DP 数组
+    dp = [float('inf')] * (sum(scaled_values) + 1)
+    dp[0] = 0
+    
+    # 3. 更新 DP 数组
+    for i in range(n):
+        for v in range(len(dp) - 1, scaled_values[i] - 1, -1):
+            dp[v] = min(dp[v], dp[v - scaled_values[i]] + weights[i])
+    
+    # 4. 找到满足容量限制的最大缩放价值
+    result = max(v for v in range(len(dp)) if dp[v] <= capacity)
+    
+    # 5. 还原近似值
+    return result * scale
+
+# 测试用例
+if __name__ == "__main__":
+    weights = [2, 3, 4, 5]  # 物品的重量
+    values = [3, 4, 5, 6]   # 物品的价值
+    capacity = 8            # 背包容量
+    epsilon = 0.1           # 精度参数
+
+    approx_value = knapsack_fptas(weights, values, capacity, epsilon)
+    print(f"0/1 背包问题 (FPTAS 方法) 的近似最大价值为: {approx_value:.2f}")
