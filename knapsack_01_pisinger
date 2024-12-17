@@ -1,0 +1,38 @@
+def knapsack_01_pisinger(weights, values, capacity):
+    """
+    解决 0/1 背包问题的 David Pisinger (1999) 方法
+    
+    :param weights: 物品的重量列表
+    :param values: 物品的价值列表
+    :param capacity: 背包的最大容量
+    :return: 背包能装入物品的最大价值
+    """
+    n = len(weights)  # 物品数量
+    
+    # 初始化辅助数据结构
+    dp = [0] * (capacity + 1)  # 一维数组存储中间结果
+    best_solution = [0] * (capacity + 1)
+    
+    # 预处理：物品按单位重量价值排序 (降序)
+    items = sorted(zip(weights, values), key=lambda x: x[1] / x[0], reverse=True)
+    weights, values = zip(*items)
+    
+    # 核心算法：逐步更新 dp 数组
+    for i in range(n):
+        weight, value = weights[i], values[i]
+        for w in range(capacity, weight - 1, -1):
+            if dp[w - weight] + value > dp[w]:
+                dp[w] = dp[w - weight] + value
+                best_solution[w] = i
+    
+    # 返回 dp 数组中最大值
+    return dp[capacity]
+
+# 测试用例
+if __name__ == "__main__":
+    weights = [2, 3, 4, 5]  # 物品的重量
+    values = [3, 4, 5, 6]   # 物品的价值
+    capacity = 8            # 背包容量
+    
+    max_value = knapsack_01_pisinger(weights, values, capacity)
+    print(f"0/1 背包问题 (Pisinger 方法) 的最大价值为: {max_value}")
